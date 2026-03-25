@@ -38,10 +38,12 @@ $databases['default']['default'] = [
 
 $settings['hash_salt'] = getenv('DRUPAL_HASH_SALT') ?: 'CHANGE_THIS_FOR_LOCAL_DEV';
 
-// Allow requests from the App Service default hostname and any custom domain.
-// Add custom domains here when you configure them.
+// Allow requests from the App Service default hostname, any custom domain,
+// and DDEV's local hostname (*.ddev.site).
 $settings['trusted_host_patterns'] = [
   '^.*\.azurewebsites\.net$',
+  '^.*\.ddev\.site$',
+  '^localhost$',
 ];
 
 // ---------------------------------------------------------------------------

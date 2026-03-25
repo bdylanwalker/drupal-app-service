@@ -1,0 +1,26 @@
+name: drupal-app-service
+type: drupal11
+docroot: web
+php_version: "8.3"
+webserver_type: apache-fpm  # matches Azure App Service Linux built-in PHP runtime
+database:
+  type: mysql
+  version: "8.4"  # matches Azure MySQL Flexible Server version
+composer_version: "2"
+
+# Inject the same env vars that Azure App Service sets so settings.php works
+# identically in both environments without a separate settings.local.php.
+web_environment:
+  - DB_HOST=db
+  - DB_NAME=db
+  - DB_USER=db
+  - DB_PASSWORD=db
+  - DRUPAL_HASH_SALT=local-dev-hash-salt-not-secret
+
+# Don't let DDEV overwrite settings.php with its own database config;
+# we manage the connection via the env vars above.
+disable_settings_management: true
+
+hooks:
+  post-start:
+    - exec: "[ -d vendor ] || composer install"
