@@ -12,7 +12,7 @@ composer_version: "2"
 # identically in both environments without a separate settings.local.php.
 web_environment:
   - DB_HOST=db
-  - DB_NAME=db
+  - DB_NAME=drupal
   - DB_USER=db
   - DB_PASSWORD=db
   - DRUPAL_HASH_SALT=local-dev-hash-salt-not-secret
@@ -23,4 +23,7 @@ disable_settings_management: true
 
 hooks:
   post-start:
+    # Create the 'drupal' database to match the Azure MySQL database name.
+    # DDEV's default database is 'db'; we connect as root from the web container.
+    - exec: mysql -h db -uroot -proot -e "CREATE DATABASE IF NOT EXISTS drupal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; GRANT ALL ON drupal.* TO 'db'@'%';"
     - exec: "[ -d vendor ] || composer install"
