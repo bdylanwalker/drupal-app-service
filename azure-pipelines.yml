@@ -22,15 +22,14 @@ stages:
       - job: ComposerBuild
         displayName: 'Composer Install & Package'
         steps:
-          - task: UsePhpVersion@0
+          # ubuntu-latest ships with PHP 8.3 — select it via update-alternatives.
+          # This avoids the UsePhpVersion marketplace extension.
+          - script: sudo update-alternatives --set php /usr/bin/php$(phpVersion)
             displayName: 'Use PHP $(phpVersion)'
-            inputs:
-              versionSpec: $(phpVersion)
 
-          - script: php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && php composer-setup.php --quiet && rm composer-setup.php
-            displayName: 'Install Composer'
-
-          - script: php composer.phar install --no-dev --optimize-autoloader --no-interaction
+          - script: |
+              curl -sS https://getcomposer.org/installer | php
+              php composer.phar install --no-dev --optimize-autoloader --no-interaction
             displayName: 'composer install (no dev dependencies)'
 
           - task: ArchiveFiles@2
