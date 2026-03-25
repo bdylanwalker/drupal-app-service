@@ -25,6 +25,11 @@ $databases['default']['default'] = [
   'driver'    => 'mysql',
   'namespace' => 'Drupal\\mysql\\Driver\\Database\\mysql',
   'autoload'  => 'core/modules/mysql/src/Driver/Database/mysql/',
+  // READ COMMITTED prevents "Transaction::rollBack() failed because of a prior
+  // DDL statement" errors during Drupal install/updates on MySQL 8.x. DDL
+  // statements cause an implicit commit in MySQL; this isolation level tells
+  // Drupal's transaction manager to handle that gracefully.
+  'isolation_level' => 'READ COMMITTED',
   // SSL is disabled on the MySQL server for dev (require_secure_transport = OFF).
   // For production: remove this block and configure MYSQL_ATTR_SSL_CA.
   'pdo' => [
