@@ -2,12 +2,12 @@ using './main.bicep'
 
 // appName becomes the App Service name and prefix for all other resources.
 // App Service names must be globally unique across Azure.
-param appName = 'drupal-dev'
+param appName = 'drupal-app-service'
 
-param location = 'eastus'
+param location = 'centralus'
 
 // Replace with your workstation's public IP: curl -s https://api.ipify.org
-param allowedIpAddress = 'REPLACE_WITH_YOUR_IP'
+param allowedIpAddress = '108.253.241.223'
 
 param dbAdminUser = 'drupaladmin'
 
