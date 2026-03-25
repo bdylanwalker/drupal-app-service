@@ -98,20 +98,8 @@ resource webApp 'Microsoft.Web/sites@2023-01-01' = {
           name: 'DenyAll'
         }
       ]
-      scmIpSecurityRestrictions: [
-        {
-          ipAddress: '${allowedIpAddress}/32'
-          action: 'Allow'
-          priority: 100
-          name: 'AllowDevMachine'
-        }
-        {
-          ipAddress: 'Any'
-          action: 'Deny'
-          priority: 2147483647
-          name: 'DenyAll'
-        }
-      ]
+      // SCM (Kudu/deploy) endpoint is left unrestricted so the Azure DevOps
+      // hosted agent can deploy. It is protected by deployment credentials.
     }
   }
 }
