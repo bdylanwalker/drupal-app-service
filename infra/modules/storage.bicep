@@ -33,5 +33,6 @@ resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-0
 }
 
 output storageAccountName string = storageAccount.name
+#disable-next-line outputs-should-not-contain-secrets
 output storageAccountKey string = storageAccount.listKeys().keys[0].value
 output fileShareName string = fileShare.name

@@ -11,9 +11,11 @@ param allowedIpAddress = '108.253.241.223'
 
 param dbAdminUser = 'drupaladmin'
 
-// dbAdminPassword is intentionally omitted — supply at deploy time:
+// Read the password from an environment variable so it is never stored in source control.
+// Set it before deploying:
+//   export DRUPAL_DB_PASSWORD='<password>'
 //   az deployment group create \
-//     --resource-group <rg> \
+//     -g drupal-app-service-rg \
 //     --template-file infra/main.bicep \
-//     --parameters infra/main.bicepparam \
-//     --parameters dbAdminPassword='<password>'
+//     --parameters infra/main.bicepparam
+param dbAdminPassword = readEnvironmentVariable('DRUPAL_DB_PASSWORD')

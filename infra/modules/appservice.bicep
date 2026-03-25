@@ -46,14 +46,32 @@ resource webApp 'Microsoft.Web/sites@2023-01-01' = {
       // Runs after app files are in place; sets Apache document root to web/
       appCommandLine: '/bin/bash /home/site/wwwroot/startup.sh'
       appSettings: [
-        { name: 'DB_HOST';        value: dbHost }
-        { name: 'DB_NAME';        value: dbName }
-        { name: 'DB_USER';        value: dbUser }
-        { name: 'DB_PASSWORD';    value: dbPassword }
-        // Derived from resource group ID + app name; stable but not secret — override for prod
-        { name: 'DRUPAL_HASH_SALT'; value: uniqueString(resourceGroup().id, appName) }
-        // Prevent Oryx from re-running composer; we include vendor/ in the deployment zip
-        { name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'; value: 'false' }
+        {
+          name: 'DB_HOST'
+          value: dbHost
+        }
+        {
+          name: 'DB_NAME'
+          value: dbName
+        }
+        {
+          name: 'DB_USER'
+          value: dbUser
+        }
+        {
+          name: 'DB_PASSWORD'
+          value: dbPassword
+        }
+        {
+          // Derived from resource group ID + app name; stable but not secret — override for prod
+          name: 'DRUPAL_HASH_SALT'
+          value: uniqueString(resourceGroup().id, appName)
+        }
+        {
+          // Prevent Oryx from re-running composer; we include vendor/ in the deployment zip
+          name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
+          value: 'false'
+        }
       ]
       // Mount Azure Files share as the Drupal public files directory
       azureStorageAccounts: {
