@@ -1,29 +1,34 @@
 #!/bin/bash
 # Azure App Service Linux PHP startup script.
-# Redirects the Apache document root from /home/site/wwwroot to /home/site/wwwroot/web
-# so Drupal's composer-based layout (web/ as docroot) is served correctly.
+# Overwrites the default Apache vhost to set the document root to web/
+# (Drupal composer layout) and starts Apache in the foreground.
+#
+# App Service treats this as the main process — it must not exit, otherwise
+# App Service will restart the container and show the default placeholder page.
 
 set -e
 
-CONFIG=/etc/apache2/sites-enabled/000-default.conf
+# Write a fresh vhost config rather than patching the existing one with sed.
+# This is reliable regardless of how the default config is formatted.
+cat > /etc/apache2/sites-available/000-default.conf << 'APACHE'
+<VirtualHost *:80>
+    DocumentRoot /home/site/wwwroot/web
 
-if [ ! -f "$CONFIG" ]; then
-  echo "ERROR: Apache config not found at $CONFIG" >&2
-  exit 1
-fi
+    <Directory /home/site/wwwroot/web>
+        Options FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
 
-# Update document root
-sed -i 's|DocumentRoot /home/site/wwwroot$|DocumentRoot /home/site/wwwroot/web|g' "$CONFIG"
+    ErrorLog /dev/stderr
+    CustomLog /dev/stdout combined
+</VirtualHost>
+APACHE
 
-# Update Directory directive to match (controls .htaccess, AllowOverride, etc.)
-sed -i 's|<Directory /home/site/wwwroot>|<Directory /home/site/wwwroot/web>|g' "$CONFIG"
-
-# Ensure .htaccess overrides are honoured (required for Drupal clean URLs)
-sed -i 's|AllowOverride None|AllowOverride All|g' "$CONFIG"
-
-# Enable mod_rewrite
 a2enmod rewrite
 
-echo "Apache config updated. Document root set to /home/site/wwwroot/web"
+echo "Startup: DocumentRoot set to /home/site/wwwroot/web — starting Apache"
 
-service apache2 restart
+# Replace this shell process with Apache running in the foreground.
+# App Service monitors this process; if it exits the container restarts.
+exec apache2 -D FOREGROUND
