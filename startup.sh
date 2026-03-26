@@ -1,32 +1,13 @@
 #!/bin/bash
 # Azure App Service Linux PHP startup script.
-# Overwrites the default Apache vhost to set the document root to web/
-# (Drupal composer layout) and starts Apache in the foreground.
 #
-# App Service treats this as the main process — it must not exit, otherwise
-# App Service will restart the container and show the default placeholder page.
+# The platform's /opt/startup/startup.sh starts nginx (with root=/home/site/wwwroot)
+# and then calls this script before starting php-fpm. We patch the nginx config
+# to point at Drupal's web/ subdirectory and reload nginx.
 
-# Write a fresh vhost config rather than patching the existing one with sed.
-# Write to sites-enabled/default — the path the Azure PHP image actually loads.
-cat > /etc/apache2/sites-enabled/000-default.conf << 'APACHE'
-<VirtualHost *:80>
-    DocumentRoot /home/site/wwwroot/web
+sed -i 's|root /home/site/wwwroot;|root /home/site/wwwroot/web;|g' \
+  /etc/nginx/sites-enabled/default
 
-    <Directory /home/site/wwwroot/web>
-        Options FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
+nginx -s reload
 
-    ErrorLog /dev/stderr
-    CustomLog /dev/stdout combined
-</VirtualHost>
-APACHE
-
-a2enmod rewrite
-
-echo "Startup: DocumentRoot set to /home/site/wwwroot/web — starting Apache"
-
-# Replace this shell process with Apache running in the foreground.
-# App Service monitors this process; if it exits the container restarts.
-exec apache2 -D FOREGROUND
+echo "Startup: nginx document root updated to /home/site/wwwroot/web"
