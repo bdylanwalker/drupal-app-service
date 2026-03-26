@@ -8,7 +8,7 @@
 
 # Write a fresh vhost config rather than patching the existing one with sed.
 # Write to sites-enabled/default — the path the Azure PHP image actually loads.
-cat > /etc/apache2/sites-enabled/default << 'APACHE'
+cat > /etc/apache2/sites-enabled/000-default.conf << 'APACHE'
 <VirtualHost *:80>
     DocumentRoot /home/site/wwwroot/web
 
