@@ -6,11 +6,9 @@
 # App Service treats this as the main process — it must not exit, otherwise
 # App Service will restart the container and show the default placeholder page.
 
-set -e
-
 # Write a fresh vhost config rather than patching the existing one with sed.
-# This is reliable regardless of how the default config is formatted.
-cat > /etc/apache2/sites-available/000-default.conf << 'APACHE'
+# Write to sites-enabled/default — the path the Azure PHP image actually loads.
+cat > /etc/apache2/sites-enabled/default << 'APACHE'
 <VirtualHost *:80>
     DocumentRoot /home/site/wwwroot/web
 
